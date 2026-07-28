@@ -253,9 +253,28 @@ options:
 Once the dataset is prepared, follow the instructions in [azure-ai-studio-ft/howto.md](azure-ai-studio-ft/howto.md) to finetune and deploy your own RAFT model. Make sure to use `prompt` as input and `completion` as output when fine tuning a `completion` model and the `messages` column as input when fine tuning a `chat` model.
 
 #### 7. Evaluate RAFT model
-After deploying your model in AI Studio, use command to evaluate the RAFT model. Make sure to fill in `base_url`, `api_key` and `model_name` in the `eval.py`, these can be found in the AI Studio. 
-```bash 
+
+After deploying your model in AI Studio, use the following command to evaluate the RAFT model. The three values you must fill in (`base_url`, `api_key`, `model_name`) all live on the **Deployments** tab of your AI Studio project — see [`raft/azure-ai-studio-ft/howto.md`](azure-ai-studio-ft/howto.md#finding-the-endpoint-credentials-after-deployment) for a step-by-step walkthrough with screenshots.
+
+```bash
 python3 eval.py --question-file YOUR_EVAL_FILE.jsonl --answer-file YOUR_ANSWER_FILE
+```
+
+If you deployed via **Azure OpenAI Service**, pass `--model <deployment-name>` and set the following in your `.env` (strip the deployment path from the endpoint — only the `<resource>.openai.azure.com/` domain is needed, as the SDK appends the rest):
+
+```env
+AZURE_OPENAI_ENDPOINT=https://<resource>.openai.azure.com/
+AZURE_OPENAI_API_KEY=<key>
+AZURE_OPENAI_DEPLOYMENT=<deployment-name>
+OPENAI_API_VERSION=2023-05-15
+```
+
+If you deployed via **Azure AI Studio Model-as-a-Service** (serverless), the deployment exposes a full OpenAI-compatible `/v1` URL. Set the following and pass `--env-prefix EVAL --model "$EVAL_MODEL"`:
+
+```env
+EVAL_OPENAI_BASE_URL=https://<deployment>-<hash>.serverless.<region>.inference.ai.azure.com/v1
+EVAL_OPENAI_API_KEY=<key>
+EVAL_MODEL=<model-id>
 ```
 
 The `YOUR_EVAL_FILE.jsonl` is in the format where
